@@ -1,7 +1,7 @@
 # Deep Generative Streets
 ## This project is based on Bicycle GAN. The original description can be seen below.
 ## Dataset can be downloaded from Digimap and pre-process with the scripts in Misc folder. Some well-trained models can be downloaded from the link in my report.
-## Some useful examples with scripts in Misc folder.
+## Following are some useful examples with scripts in Misc folder:
 ### Create basic dataset (10 is number of original images, 0 is mode for AtoB and 4 is the size of naming):
 ```bash
 bash makedata.sh satellite_images_path map_images_path 10 0 4
@@ -22,7 +22,7 @@ bash whole.sh
 ```bash
 bash replace.sh
 ```
-## Some useful examples for training or testing.
+## Some useful examples for training or testing:
 ### Basic training or testing (final is the name of dataset folder):
 ```bash
 python train.py --dataroot ./datasets/final --name final_bicycleGAN --model bicycle_gan --direction AtoB --load_size 256
