@@ -45,8 +45,8 @@ class Aligned6cDataset(BaseDataset):
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
-        # C_path = AB_path.replace(self.opt.phase, "map")
-        C_path = AB_path.replace(self.opt.phase, "wholeMap")
+        C_path = AB_path.replace(self.opt.phase, "map")
+        # C_path = AB_path.replace(self.opt.phase, "wholeMap")
         C = Image.open(C_path).convert('RGB')
 
         # apply the same transform to both A and B
