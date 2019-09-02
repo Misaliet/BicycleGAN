@@ -33,5 +33,9 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--lambda_z', type=float, default=0.5, help='weight for ||E(G(random_z)) - random_z||')
         parser.add_argument('--lambda_kl', type=float, default=0.01, help='weight for KL loss')
         parser.add_argument('--use_same_D', action='store_true', help='if two Ds share the weights or not')
+
+        # new parameters 
+        parser.add_argument('--mask', action='store_true', help='add extra channel with a mask image or not')
+        parser.add_argument('--lambda_ml', type=float, default=1, help='weight for ML loss')
         self.isTrain = True
         return parser

@@ -60,6 +60,8 @@ class BaseOptions():
         parser.add_argument('--suffix', default='', type=str, help='customized suffix: opt.name = opt.name + suffix: e.g., {model}_{netG}_size{load_size}')
         parser.add_argument('--display_winsize', type=int, default=256, help='display window size')
 
+        parser.add_argument('--mask_name', type=str, default='nborder2_25.png', help='hich mask to use for last channel')
+
         # special tasks
         self.initialized = True
         return parser
