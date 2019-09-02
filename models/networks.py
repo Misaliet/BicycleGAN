@@ -542,9 +542,14 @@ class G_Unet_add_input(nn.Module):
 
     def forward(self, x, z=None):
         if self.nz > 0:
-            z_img = z.view(z.size(0), z.size(1), 1, 1).expand(
-                z.size(0), z.size(1), x.size(2), x.size(3))
-            x_with_z = torch.cat([x, z_img], 1)
+            # z_img = z.view(z.size(0), z.size(1), 1, 1).expand(
+            #     z.size(0), z.size(1), x.size(2), x.size(3))
+            # x_with_z = torch.cat([x, z_img], 1)
+            x_with_z = torch.cat([x, z], 1)
+            # print(z)
+            # print("----------------------")
+            # print(z_img)
+            # print("----------------------")
         else:
             x_with_z = x  # no z
 
