@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.nn import init
 import functools
 from torch.optim import lr_scheduler
+import numpy as np
 
 ###############################################################################
 # Helper functions
@@ -316,6 +317,85 @@ class RecLoss(nn.Module):
             return torch.mean(diff)
         else:
             return torch.mean(torch.mean(torch.mean(diff, dim=1), dim=2), dim=3)
+
+
+class maskLoss(nn.Module):
+    def __init__(self, device):
+        super(maskLoss, self).__init__()
+        self.loss = nn.MSELoss()
+        self.device = device
+
+    def extractEdge(self, source, edge):
+        matrix = np.zeros((source.size()[0], source.size()[1], source.size()[2], source.size()[3]), dtype=np.float32)
+        # new_source = torch.ones(())
+        # new_source.new_empty((source.size()[1], source.size()[2], source.size()[3]))
+        source_h = source.size()[2]
+        source_w = source.size()[3]
+        new_source = torch.from_numpy(matrix).to(self.device)
+        new_source[:, :, 0: edge, :] = source[:, :, 0: edge, :]
+        new_source[:, :, source_h - edge: source_h, :] = source[:, :, source_h - edge: source_h, :]
+        new_source[:, :, edge: source_w - edge, 0: edge] = source[:, :, edge: source_w - edge, 0: edge]
+        new_source[:, :, edge: source_w - edge, source_w - edge: source_w] = source[:, :, edge: source_w - edge, source_w - edge: source_w]
+        return new_source
+    
+    def applyMask(self, source, size, mask):
+        matrix = np.ones((size[0], 3, size[2], size[3]), dtype=np.float32)
+        mask3 = torch.from_numpy(matrix).to(self.device)
+        # print(mask[:, 0:1, 118:128, 20:30])
+        mask3[:, 0, :, :] = mask
+        mask3[:, 1, :, :] = mask
+        mask3[:, 2, :, :] = mask
+        return source * mask3
+
+
+    def __call__(self, source, target, edge=25):
+        # batch_size = x.size()[0]
+        # h_x = x.size()[2]
+        # w_x = x.size()[3]
+        # for i in range(len(x.size())):
+        #     print(x.size()[i])
+        # print("batch_size: %3.3d" % batch_size)
+        # print("h_x: %3.3d" % h_x)
+        # print("w_x: %3.3d" % w_x)
+        # new_source = np.zeros((source.size()[1], source.size()[2], source.size()[3]))
+        # new_target = np.zeros((target.size()[1], target.size()[2], target.size()[3]))
+        # source_h = source.size()[2]
+        # source_w = source.size()[3]
+        # target_h = target.size()[2]
+        # target_w = target.size()[3]
+        # new_source[0: edge, :] = source[0: edge, :]
+        # new_source[source_h - edge: source_h, :] = source[source_h - edge: source_h, :]
+        # new_source[edge: source_w - edge, 0: edge] = source[edge: source_w - edge, 0: edge]
+        # new_source[edge: source_w - edge, source_w - edge: source_w] = source[edge: source_w - edge, source_w - edge: source_w]
+        # print(target[:, 3:4, 20:30, 20:30])
+
+        # new_source = self.extractEdge(source, edge)
+        # new_target = self.extractEdge(target, edge)
+        # print(new_source.size())
+        # print(new_target.size())
+        # if new_target.size()[1] > 3:
+        #     loss = self.loss(new_source, new_target[:, 0:3, :, :])
+        # else:
+        #     loss = self.loss(new_source, new_target)
+        # # print(loss)
+        # return loss
+        
+        new_source = self.applyMask(source, source.size(), target[:, target.size()[1] - 1: target.size()[1], :, :])
+        new_target = self.applyMask(target[:, 0:3, :, :], source.size(), target[:, target.size()[1] - 1: target.size()[1], :, :])
+        loss = self.loss(new_source, new_target)
+        # print(loss)
+        return loss
+
+    def forward(self, x):
+        # batch_size = x.size()[0]
+        # h_x = x.size()[2]
+        # w_x = x.size()[3]
+        # for i in range(len(x.size())):
+        #     print(x.size()[i])
+        # print("batch_size: %3.3d" % batch_size)
+        # print("h_x: %3.3d" % h_x)
+        # print("w_x: %3.3d" % w_x)
+        return 0
 
 
 # Defines the GAN loss which uses either LSGAN or the regular GAN.
