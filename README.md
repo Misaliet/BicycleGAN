@@ -1,3 +1,60 @@
+# Deep Generative Streets
+## This project is based on Bicycle GAN. The original description can be seen below.
+## Dataset can be downloaded from Digimap and pre-process with the scripts in Misc folder. Some well-trained models can be downloaded from the link in my report.
+## Some useful examples with scripts in Misc folder.
+### Create basic dataset (10 is number of original images, 0 is mode for AtoB and 4 is the size of naming):
+```bash
+bash makedata.sh satellite_images_path map_images_path 10 0 4
+```
+### Create dataset for spatial varying z method:
+```bash
+python imageProcess.py -s map_images_path -r satellite_images_path -m 0 -d 5
+```
+### Combine low-resolution images to high-resolution images in a large scale (3072 is resolution):
+```bash
+python combineImages.py images_path 3072
+```
+### Generate new low-resolution images and combine them to one high-resolution image (change code inside this script for different tasks):
+```bash
+bash whole.sh
+```
+### Extract seams from one high-resolution image and then use Seams Bicycle GAN to erase seams and replace new images back to high-resolution image (change code inside this script for different tasks), this can also be used for create Seams dataset:
+```bash
+bash replace.sh
+```
+## Some useful examples for training or testing.
+### Basic training or testing (final is the name of dataset folder):
+```bash
+python train.py --dataroot ./datasets/final --name final_bicycleGAN --model bicycle_gan --direction AtoB --load_size 256
+python test.py --dataroot ./datasets/final --direction AtoB --model bicycle_gan --name final_bicycleGAN_pretrained --results_dir ./results/final --phase test  --no_flip --load_size 256
+```
+### Seams Bicycle GAN training or testing (seamsL is the name of dataset folder):
+```bash
+python train.py --dataroot ./datasets/seamsL --name seamsL_bicycleGAN --model bicycle_gan --direction AtoB --load_size 256
+python test.py --dataroot ./datasets/seamsL --direction AtoB --model bicycle_gan --name seamsL_bicycleGAN_pretrained --results_dir ./results/seamsL --phase test  --no_flip --load_size 256
+```
+### 6-channel Seams Bicycle GAN training or testing (6 channel images can not be saved so "--display_id -1 --no_html" must be added in training phase):
+```bash
+python train.py --dataroot ./datasets/seamsL6 --name seamsL6_bicycleGAN --model bicycle_gan --direction AtoB --load_size 256 --input_nc 6 --dataset_mode aligned6c --display_id -1 --no_html
+python test.py --dataroot ./datasets/seamsL6 --direction AtoB --model bicycle_gan --name seamsL6_bicycleGAN_pretrained --results_dir ./results/seamsL6 --phase test  --no_flip --load_size 256 --input_nc 6 --dataset_mode aligned6c
+```
+### 7-channel Seams Bicycle GAN training or testing (mask_name is the mask file in /dataset/seamsL6/mask/):
+```bash
+python train.py --dataroot ./datasets/seamsL6 --name seamsL7m1 --model bicycle_gan --direction AtoB --load_size 256 --input_nc 7 --dataset_mode aligned7c --mask_name nborder2_25.png --display_id -1 --no_html
+python test.py --dataroot ./datasets/seamsL6 --direction AtoB --model bicycle_gan --name seamsL7m1_bicycleGAN_pretrained --results_dir ./results/seamsL7m1 --phase test  --no_flip --load_size 256 --input_nc 7 --dataset_mode aligned7c --mask_name nborder2_25.png 
+```
+### 7-channel Seams Bicycle GAN with new loss function training or testing (bicycle_ganML model should be used instead of bicycle_gan):
+```bash
+python train.py --dataroot ./datasets/seamsL6 --name seamsL7m1l --model bicycle_ganML --direction AtoB --load_size 256 --input_nc 7 --dataset_mode aligned7c --mask_name nborder2_25.png --lambda_ml 30 --display_id -1 --no_html
+python test.py --dataroot ./datasets/seamsL6 --direction AtoB --model bicycle_ganML --name seamsL7m1l_bicycleGAN_pretrained --results_dir ./results/seamsL7m1l --num_test 50 --phase test  --no_flip --load_size 256 --gpu_ids -1  --input_nc 7 --dataset_mode aligned7c --sync --mask_name nborder2_25.png
+```
+### Spatial varying z method (bicycle_gan4TZ model should be used instead of bicycle_gan, only add z in input layer so "--where_add input" is added):
+```bash
+python train.py --dataroot ./datasets/z --name 4tz_bicycleGAN --model bicycle_gan4TZ --direction AtoB --load_size 256 --where_add input
+python test.py --dataroot ./datasets/z --direction AtoB --model bicycle_gan4TZ --name 4tz_bicycleGAN_pretrained --results_dir ./results/4tz --phase test  --no_flip --load_size 256 --where_add input
+```
+#
+# The following is original README from Bicycle GAN.
 <img src='imgs/day2night.gif' align="right" width=360>
 
 <br><br><br><br>
