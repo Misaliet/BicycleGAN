@@ -41,6 +41,16 @@ def save_images(webpage, images, names, image_path, aspect_ratio=1.0, width=256)
             im = imresize(im, (h, int(w * aspect_ratio)), interp='bicubic')
         if aspect_ratio < 1.0:
             im = imresize(im, (int(h / aspect_ratio), w), interp='bicubic')
+        # print("--------------")
+        # print(im.shape)
+        # print("--------------")
+        if im.shape[2] > 3:
+            im = im[:, :, 0: 3]
+        # if im.shape[2] > 3:
+        #     im = im[:, :, 3: 6]
+        # print("--------------")
+        # print(im.shape)
+        # print("--------------")
         util.save_image(im, save_path)
 
         ims.append(image_name)
@@ -136,6 +146,11 @@ class Visualizer():
                 if label_html_row != '':
                     label_html += '<tr>%s</tr>' % label_html_row
                 try:
+                    # print("------------")
+                    # for i in range(0, len(images)):
+                    #     images[i] = images[i][0: 3, 0: 256, 0: 256]
+                    # print(images[0].shape)
+                    # print("------------")
                     self.vis.images(images, nrow=ncols, win=self.display_id + 1,
                                     padding=2, opts=dict(title=title + ' images'))
                     label_html = '<table>%s</table>' % label_html
@@ -161,6 +176,10 @@ class Visualizer():
             for label, image in visuals.items():
                 image_numpy = util.tensor2im(image)
                 img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
+                # print("------------")
+                # print(image_numpy.shape)
+                # image_numpy = image_numpy[0: 256, 0: 256, 0: 3]
+                # print("------------")
                 util.save_image(image_numpy, img_path)
 
             # update website
